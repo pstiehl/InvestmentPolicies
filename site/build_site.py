@@ -333,23 +333,24 @@ def main():
     rows = flatten(policies)
 
     # policies.json (table fuel)
-    (DIST / "policies.json").write_text(json.dumps(rows, indent=2))
+    (DIST / "policies.json").write_text(json.dumps(rows, indent=2), encoding="utf-8")
 
     # app.js with rows inlined for zero network dependency
     app_js = f"window.__POLICY_ROWS__ = {json.dumps(rows)};\n{APP_JS}"
-    (DIST / "assets" / "app.js").write_text(app_js)
+    (DIST / "assets" / "app.js").write_text(app_js, encoding="utf-8")
 
     # index.html
     n_clients = len({r["client"] for r in rows})
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     (DIST / "index.html").write_text(
-        INDEX_HTML.format(n_clients=n_clients, n_rows=len(rows), generated=generated)
+        INDEX_HTML.format(n_clients=n_clients, n_rows=len(rows), generated=generated),
+        encoding="utf-8",
     )
 
     # per-client detail pages
     for pol in policies:
         slug = slugify(pol.get("client", "client"))
-        (DIST / "client" / f"{slug}.html").write_text(render_client_page(pol))
+        (DIST / "client" / f"{slug}.html").write_text(render_client_page(pol), encoding="utf-8")
 
     # excel export
     write_xlsx(rows, DIST / "policies.xlsx")

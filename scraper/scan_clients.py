@@ -34,8 +34,16 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-POLICY_NAME_PAT = re.compile(r"invest(?:ment)?\s*polic", re.IGNORECASE)
-ACCEPTED_EXTS = {".docx", ".xlsx", ".xlsm"}
+# Broad fuzzy match for filenames that look like investment-policy documents.
+# Strategy: a list of patterns, tried in order. First one that matches anywhere
+# in the filename wins. Order matters — most specific first so we don't pick
+# up unrelated docs like "investment_committee_minutes".
+POLICY_NAME_PATTERNS = [
+    re.compile(r"invest(?:ment)?\s*[-_ ]*polic", re.IGNORECASE),   # "Investment Policy", "InvestmentPolicy", "Investment-Policy"
+    re.compile(r"\bIPS\b", re.IGNORECASE),                          # IPS = Investment Policy Statement (industry shorthand)
+    re.compile(r"polic(?:y|ies)", re.IGNORECASE),                   # last resort: anything with "policy" in the name
+]
+ACCEPTED_EXTS = {".docx", ".xlsx", ".xlsm", ".doc", ".xls"}
 
 
 def load_env(script_dir: Path):
@@ -63,9 +71,11 @@ def file_sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def find_latest_year_dir(policies_dir: Path) -> Path | None:
+def find_year_dirs_newest_first(policies_dir: Path) -> list[Path]:
+    """Return all year-named subdirs newest-first. Fallback to [policies_dir]
+    when no year-named subdir exists."""
     if not policies_dir.exists():
-        return None
+        return []
     year_dirs = []
     for child in policies_dir.iterdir():
         if not child.is_dir():
@@ -74,29 +84,38 @@ def find_latest_year_dir(policies_dir: Path) -> Path | None:
         if m:
             year_dirs.append((int(m.group(1)), child))
     if not year_dirs:
-        # No year subdir? fall back to policies_dir itself
-        return policies_dir
+        return [policies_dir]
     year_dirs.sort(reverse=True)
-    return year_dirs[0][1]
+    return [c for _, c in year_dirs]
 
 
-def find_latest_policy_file(folder: Path) -> Path | None:
-    candidates = []
+def find_latest_policy_file(folder: Path, verbose: bool = False) -> Path | None:
+    """Try each pattern in POLICY_NAME_PATTERNS in order; first that matches wins.
+
+    If `verbose` is True and no match is found, print every candidate filename
+    in the folder so the operator can see what's actually there.
+    """
+    all_docs = []
     for f in folder.rglob("*"):
         if not f.is_file():
             continue
         if f.suffix.lower() not in ACCEPTED_EXTS:
             continue
-        if not POLICY_NAME_PAT.search(f.name):
+        if f.name.startswith("~$"):  # Office lock files
             continue
-        # Skip lock files / temp
-        if f.name.startswith("~$"):
-            continue
-        candidates.append(f)
-    if not candidates:
-        return None
-    candidates.sort(key=lambda p: p.stat().st_mtime, reverse=True)
-    return candidates[0]
+        all_docs.append(f)
+
+    for pat in POLICY_NAME_PATTERNS:
+        hits = [f for f in all_docs if pat.search(f.name)]
+        if hits:
+            hits.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+            return hits[0]
+
+    if verbose and all_docs:
+        print(f"  [debug] no policy-name match in {folder}; saw {len(all_docs)} doc(s):")
+        for f in all_docs[:20]:
+            print(f"    - {f.name}")
+    return None
 
 
 def slugify(name: str) -> str:
@@ -158,15 +177,28 @@ def main():
                 continue
             policies_dir = alt
 
-        year_dir = find_latest_year_dir(policies_dir)
-        if not year_dir:
+        year_dirs = find_year_dirs_newest_first(policies_dir)
+        if not year_dirs:
             print(f"[skip] {client_name}: no year folder under {policies_dir}")
             continue
 
-        policy_file = find_latest_policy_file(year_dir)
+        # Walk year folders newest-first; fall back to older years if current
+        # year has no matching policy file (common when the new year's policy
+        # hasn't been uploaded yet).
+        policy_file = None
+        searched_year = None
+        for yd in year_dirs:
+            policy_file = find_latest_policy_file(yd, verbose=(yd == year_dirs[0]))
+            if policy_file:
+                searched_year = yd
+                break
+
         if not policy_file:
-            print(f"[skip] {client_name}: no investment-policy file under {year_dir}")
+            print(f"[skip] {client_name}: no investment-policy file under any of {[y.name for y in year_dirs]}")
             continue
+        if searched_year != year_dirs[0]:
+            print(f"[fallback] {client_name}: using {searched_year.name}/ (newest year {year_dirs[0].name}/ had no match)")
+        year_dir = searched_year
 
         h = file_sha256(policy_file)
         prior = manifest["clients"].get(client_name, {})
