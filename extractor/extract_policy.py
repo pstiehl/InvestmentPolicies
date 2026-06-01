@@ -265,8 +265,9 @@ def main():
                          "dollar_tokens": len(token_map["dollars"])}, indent=2))
         return
 
-    print(f"[extract] {args.client}: {args.policy_path.name} ({len(redacted)} chars to model)", file=sys.stderr)
+    print(f"    [llm] sending {len(redacted)} chars to {MODEL}…", file=sys.stderr, flush=True)
     parsed, audit = call_llm(redacted, token_map["client_pseudonym"], args.policy_path.name, schema)
+    print(f"    [llm] response in {audit['elapsed_s']}s, {audit['input_tokens']} in / {audit['output_tokens']} out tokens", file=sys.stderr, flush=True)
 
     # Re-attach real client name + real dollar amounts
     parsed = restore(parsed, token_map, args.client)

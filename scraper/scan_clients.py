@@ -123,8 +123,14 @@ def slugify(name: str) -> str:
 
 
 def run(cmd, **kw):
-    print(f"$ {' '.join(map(str, cmd))}")
+    print(f"$ {' '.join(map(str, cmd))}", flush=True)
+    # Stream child stdout/stderr live so the operator sees progress in real time.
     return subprocess.run(cmd, check=True, **kw)
+
+
+def log(msg: str):
+    """Print + flush so PowerShell sees output as it happens, not at the end."""
+    print(msg, flush=True)
 
 
 def main():
@@ -146,6 +152,12 @@ def main():
     if not clients_root.exists():
         sys.exit(f"CLIENTS_ROOT not found: {clients_root}")
 
+    log(f"[start] {datetime.now().strftime('%H:%M:%S')} scanning {clients_root}")
+    log(f"[start] repo_root={repo_root}")
+    if args.only_client:
+        log(f"[start] limiting to client: {args.only_client}")
+    log(f"[start] max_clients={args.max_clients}")
+
     manifest_path = repo_root / "data" / "manifest.json"
     extracted_dir = repo_root / "data" / "extracted"
     extracted_dir.mkdir(parents=True, exist_ok=True)
@@ -160,20 +172,22 @@ def main():
     seen_clients = set()
     extracted_this_run = 0
 
-    for client_dir in sorted(clients_root.iterdir()):
-        if not client_dir.is_dir():
-            continue
+    all_client_dirs = sorted([d for d in clients_root.iterdir() if d.is_dir()])
+    log(f"[scan] found {len(all_client_dirs)} client folder(s) under {clients_root}")
+
+    for idx, client_dir in enumerate(all_client_dirs, 1):
         client_name = client_dir.name
         seen_clients.add(client_name)
         if args.only_client and client_name != args.only_client:
             continue
+        log(f"\n[{idx}/{len(all_client_dirs)}] === {client_name} ===")
 
         policies_dir = client_dir / "policies"
         if not policies_dir.exists():
             # case-insensitive: some shares have "Policies"
             alt = next((c for c in client_dir.iterdir() if c.is_dir() and c.name.lower() == "policies"), None)
             if not alt:
-                print(f"[skip] {client_name}: no policies/ folder")
+                log(f"  [skip] no policies/ folder")
                 continue
             policies_dir = alt
 
@@ -194,16 +208,17 @@ def main():
                 break
 
         if not policy_file:
-            print(f"[skip] {client_name}: no investment-policy file under any of {[y.name for y in year_dirs]}")
+            log(f"  [skip] no policy file found under any of {[y.name for y in year_dirs]}")
             continue
         if searched_year != year_dirs[0]:
-            print(f"[fallback] {client_name}: using {searched_year.name}/ (newest year {year_dirs[0].name}/ had no match)")
+            log(f"  [fallback] using {searched_year.name}/ (newest year {year_dirs[0].name}/ had no match)")
         year_dir = searched_year
+        log(f"  [found] {policy_file.relative_to(client_dir)}")
 
         h = file_sha256(policy_file)
         prior = manifest["clients"].get(client_name, {})
         if prior.get("file_hash") == h:
-            print(f"[unchanged] {client_name}: {policy_file.name}")
+            log(f"  [unchanged] same hash as last run, skipping LLM call")
             # update path/year in case the file moved
             manifest["clients"][client_name] = {
                 **prior,
@@ -220,7 +235,8 @@ def main():
         # Run extractor
         slug = slugify(client_name)
         out_json = extracted_dir / f"{slug}.json"
-        print(f"[extract] {client_name}: {policy_file.name}")
+        log(f"  [extract] calling Claude (typically 20-60s)…")
+        t_start = datetime.now()
         try:
             extracted_this_run += 1
             run([
@@ -238,9 +254,11 @@ def main():
                 "extracted_at": datetime.now(timezone.utc).isoformat(),
                 "extracted_json": str(out_json.relative_to(repo_root)),
             }
+            elapsed = (datetime.now() - t_start).total_seconds()
+            log(f"  [done]  {elapsed:.1f}s → {out_json.relative_to(repo_root)}")
             changed_clients.append(client_name)
         except subprocess.CalledProcessError as e:
-            print(f"[error] {client_name} extraction failed: {e}")
+            log(f"  [error] extraction failed: {e}")
 
     # Prune clients that have disappeared from S:\Clients
     for vanished in [c for c in manifest["clients"] if c not in seen_clients]:
@@ -265,7 +283,9 @@ def main():
         except subprocess.CalledProcessError as e:
             print(f"[error] git push failed: {e}. Site updated locally; please push manually.")
     elif not changed_clients:
-        print("[ok] no policy changes this run")
+        log("\n[ok] no policy changes this run")
+
+    log(f"\n[finish] {datetime.now().strftime('%H:%M:%S')} extracted={extracted_this_run} changed={len(changed_clients)}")
 
 
 if __name__ == "__main__":
