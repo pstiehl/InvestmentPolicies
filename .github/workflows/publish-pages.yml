@@ -1,12 +1,12 @@
-name: Publish dashboard to GitHub Pages
+name: Publish dashboard
 
+# Auto-publish disabled until hosting target is chosen.
+# Free-plan GitHub repos cannot serve Pages from a *private* repo, so this
+# workflow waits for either:
+#   (a) Upgrade to GitHub Team plan and switch back to deploy-pages, or
+#   (b) Pivot to Cloudflare Pages / Vercel / sandpaw.ai subdomain + Access
+# Re-enable the `push` trigger once one of those is wired up.
 on:
-  push:
-    branches: [main]
-    paths:
-      - "data/extracted/**"
-      - "site/**"
-      - ".github/workflows/publish-pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -28,16 +28,9 @@ jobs:
           python-version: "3.12"
       - run: pip install openpyxl
       - run: python site/build_site.py
-      - uses: actions/upload-pages-artifact@v3
+      - name: Upload site artifact (sanity build only — not deployed)
+        uses: actions/upload-artifact@v4
         with:
+          name: alm-policies-site
           path: site/dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+          retention-days: 7
