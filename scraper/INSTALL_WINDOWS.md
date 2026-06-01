@@ -20,8 +20,8 @@ Open PowerShell:
 
 ```powershell
 cd $env:USERPROFILE
-git clone https://github.com/pstiehl/ALM-First-Policies.git
-cd ALM-First-Policies
+git clone https://github.com/pstiehl/InvestmentPolicies.git
+cd InvestmentPolicies
 ```
 
 ## 2. Install Python deps
@@ -32,13 +32,31 @@ py -m pip install --user anthropic python-docx openpyxl jsonschema
 
 ## 3. Configure the scraper
 
-Create `scraper\.env` with:
+> ⚠️ *The block below is the **contents of a file**, not commands to run.*
+> Do not paste these lines into PowerShell.
 
+From inside `C:\Users\pstiehl\InvestmentPolicies`, run:
+
+```powershell
+Copy-Item scraper\.env.example scraper\.env
+notepad scraper\.env
 ```
+
+Notepad opens. Replace `sk-ant-PASTE-YOUR-REAL-KEY-HERE` with your real
+Anthropic API key. Save and close. The file's final contents should look like
+this (your key on line 3):
+
+```text
 CLIENTS_ROOT=S:\Clients
-REPO_ROOT=C:\Users\<your-username>\ALM-First-Policies
-ANTHROPIC_API_KEY=sk-ant-...
+REPO_ROOT=C:\Users\pstiehl\InvestmentPolicies
+ANTHROPIC_API_KEY=sk-ant-...your real key...
 GITHUB_PUSH=true
+```
+
+Verify it looks right:
+
+```powershell
+Get-Content scraper\.env
 ```
 
 Configure git to use your PAT (one-time):
@@ -66,11 +84,10 @@ Future runs only re-extract changed files.
 Run as your normal user account (not SYSTEM — needs your `S:\` mount):
 
 ```powershell
-# Replace <your-username> with your Windows username
 $action = New-ScheduledTaskAction `
     -Execute "py" `
     -Argument "scraper\scan_clients.py" `
-    -WorkingDirectory "C:\Users\<your-username>\ALM-First-Policies"
+    -WorkingDirectory "C:\Users\pstiehl\InvestmentPolicies"
 
 # Every Monday at 7:00 AM (laptop must be awake; pick a time you're online)
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Monday -At 7:00AM
@@ -111,7 +128,7 @@ deployed.
 - **"git push failed"** — your PAT expired. Generate a new one and run any
   `git pull` interactively to re-prompt for credentials.
 - **"ANTHROPIC_API_KEY missing"** — verify `scraper\.env` is at
-  `ALM-First-Policies\scraper\.env` (not at the repo root).
+  `InvestmentPolicies\scraper\.env` (not at the repo root).
 - **A specific client extraction fails** — check `data\llm_audit.jsonl`. You
   can re-run a single client manually:
   ```powershell
