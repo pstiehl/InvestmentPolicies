@@ -1,0 +1,180 @@
+{
+  "client": "CSP Sample",
+  "policy_file": "CSP_preferred_language.docx",
+  "extracted_at": "2026-06-01T15:11:45.255243+00:00",
+  "extractor_version": "0.1.0",
+  "extraction_confidence": 0.9,
+  "policy_date": null,
+  "policy_year_folder": "2026",
+  "asset_classes": [
+    {
+      "category": "US Treasury",
+      "subcategory": "Bills, Bonds, and Notes",
+      "permitted": true,
+      "max_maturity_years": 15,
+      "max_portfolio_pct": 100,
+      "max_net_worth_pct": null,
+      "verbatim_source": "U.S. Treasury Bills, Bonds, and Notes... Maximum Maturity: 15 Years; Maximum Net Worth Limit: None; Maximum Portfolio Limit: 100%"
+    },
+    {
+      "category": "Agency Debt",
+      "subcategory": "Agency Bullet",
+      "permitted": true,
+      "max_maturity_years": 15,
+      "max_portfolio_pct": 100,
+      "max_net_worth_pct": null,
+      "verbatim_source": "Agency Bullet Securities: Maximum Maturity: 15 Years; Maximum Net Worth Limit: None; Maximum Portfolio Limit: 100%"
+    },
+    {
+      "category": "Agency Debt",
+      "subcategory": "Agency Callable, Step-Up, and Floating-Rate",
+      "permitted": true,
+      "max_maturity_years": 10,
+      "max_portfolio_pct": 50,
+      "max_net_worth_pct": null,
+      "min_call_protection_years": 1,
+      "structures_prohibited": [
+        "OTC custom structured notes"
+      ],
+      "verbatim_source": "Agency Callable, Step-Up, and Floating-Rate Securities... Maximum Maturity: 10 Years; Maximum Portfolio Limit: 50%; Minimum Call Protection: 1 Year. Structured notes designed in an over-the-counter manner specifically for an institution... are not a permissible investment."
+    },
+    {
+      "category": "Agency MBS Passthrough",
+      "permitted": true,
+      "max_portfolio_pct": 100,
+      "max_net_worth_pct": null,
+      "verbatim_source": "Agency MBS Passthrough: Maximum Net Worth Limit: None; Maximum Portfolio Limit: 100%"
+    },
+    {
+      "category": "Agency CMO",
+      "permitted": true,
+      "max_portfolio_pct": 100,
+      "max_net_worth_pct": null,
+      "structures_permitted": [
+        "Sequential Pay CMO",
+        "Planned Amortization Class (PAC) CMO"
+      ],
+      "structures_prohibited": [
+        "Support tranche CMO",
+        "Stripped MBS (IO/PO)"
+      ],
+      "verbatim_source": "Structures allowed are as follows: sequential pay CMOs and planned amortization class (PAC) CMOs. Structures prohibited are: support tranche CMOs and stripped mortgage-backed securities. Maximum Portfolio Limit: 100%"
+    },
+    {
+      "category": "Agency CMBS",
+      "permitted": true,
+      "max_portfolio_pct": 100,
+      "max_net_worth_pct": null,
+      "structures_permitted": [
+        "Passthrough",
+        "REMIC"
+      ],
+      "verbatim_source": "Agency CMBS... Structures include passthrough and real estate mortgage investment conduit (REMIC) securities... Maximum Portfolio Limit: 100%"
+    },
+    {
+      "category": "Agency HECM",
+      "permitted": true,
+      "max_maturity_years": 50,
+      "max_weighted_average_life_years": 20,
+      "max_portfolio_pct": 50,
+      "single_issuer_pct": 100,
+      "single_security_limit": "10% of Net Worth",
+      "verbatim_source": "U.S. Agency Securities backed by Home Equity Conversion Mortgages... Maximum Portfolio Limit: 50%; Single Security Limit: 10% of Net Worth; Single Issuer Limit: 100% of Net Worth; Maximum Maturity: 50 Years; Maximum Weighted Average Life: 20 Years"
+    },
+    {
+      "category": "Small Business Administration (SBA)",
+      "subcategory": "SBA Fixed and Floating-Rate",
+      "permitted": true,
+      "max_portfolio_pct": 25,
+      "max_net_worth_pct": null,
+      "verbatim_source": "SBA Fixed and Floating-Rate: Maximum Net Worth Limit: None; Maximum Portfolio Limit: 25%"
+    },
+    {
+      "category": "Other",
+      "subcategory": "Repurchase Agreements (REPO)",
+      "permitted": true,
+      "max_maturity_years": 2,
+      "max_portfolio_pct": 100,
+      "verbatim_source": "Investment Repurchase and Borrowing Repurchase Agreements (REPO)... Maximum Maturity: 2 years; Maximum Portfolio Limit: 100%"
+    },
+    {
+      "category": "Municipal Bonds",
+      "permitted": true,
+      "max_maturity_years": 15,
+      "single_issuer_pct": 25,
+      "max_net_worth_pct": 50,
+      "max_portfolio_pct": null,
+      "min_credit_rating": "BBB-",
+      "verbatim_source": "Municipal Debt Securities... only 'investment grade' rated bonds may be purchased. Maximum Maturity: 15 Years; Single Issuer Limit: 25% of Net Worth; Maximum Net Worth Limit: 50%, combined with all other Muni Investments"
+    },
+    {
+      "category": "Private-Label MBS",
+      "permitted": true,
+      "max_portfolio_pct": 25,
+      "max_net_worth_pct": 75,
+      "single_security_limit": "10% of Net Worth",
+      "min_credit_rating": "AA-",
+      "verbatim_source": "Non-agency MBS... Single Security Limit: 10% of Net Worth; Maximum Net Worth Limit: 75%; Maximum Portfolio Limit: 25%; Minimum Rating: AA (minus)"
+    },
+    {
+      "category": "Corporate Bonds",
+      "permitted": true,
+      "max_maturity_years": 10,
+      "single_issuer_pct": 10,
+      "max_net_worth_pct": 50,
+      "max_portfolio_pct": 25,
+      "min_credit_rating": "BBB-",
+      "structures_permitted": [
+        "Yankee dollar deposits",
+        "Eurodollar deposits",
+        "Banker's acceptances",
+        "Deposit notes",
+        "Corporate bonds"
+      ],
+      "verbatim_source": "Corporate Bonds... Maximum Maturity: 10 Years; Single Issuer Net Worth Limit: 10%; Maximum Net Worth Limit: 50%; Maximum Portfolio Limit: 25%. Only 'investment grade' rated bonds may be purchased."
+    },
+    {
+      "category": "Bank CDs",
+      "subcategory": "NCUA/FDIC Insured Bank, Thrift, and CU Instruments",
+      "permitted": true,
+      "max_maturity_years": 5,
+      "single_security_limit": "$250,000",
+      "max_net_worth_pct": null,
+      "max_portfolio_pct": null,
+      "verbatim_source": "Instruments Issued by NCUA or FDIC Insured Banks, Thrifts, and Credit Unions. Investments $250,000 or less... Maximum Maturity: 5 Years; Single Security Limit: $250,000; Maximum Net Worth Limit: None; Maximum Portfolio Limit: None"
+    },
+    {
+      "category": "Mutual Funds",
+      "permitted": true,
+      "max_maturity_years": null,
+      "max_portfolio_pct": null,
+      "verbatim_source": "Mutual funds provided the prospectus of the fund explicitly states the fund can only engage in investment and investment-related activities permissible under Regulation 703 and the Federal Credit Union Act."
+    }
+  ],
+  "portfolio_level_limits": {
+    "max_effective_duration_years": 4,
+    "max_price_depreciation_pct_at_plus300bps": 15,
+    "min_liquidity_pct_of_assets": null,
+    "concentration_notes": "Given a parallel yield curve shift of 300 basis points, the aggregate price depreciation of the investment portfolio should not exceed 15% of the portfolio. The effective duration of the portfolio in the base scenario should not exceed 4%."
+  },
+  "classification_rules": {
+    "default_classification": "AFS",
+    "trading_account_permitted": false,
+    "htm_permitted": true
+  },
+  "approved_brokers": [
+    "ALM First Approved Broker/Dealer List"
+  ],
+  "prohibited_practices": [
+    "Over-the-counter custom structured notes lacking liquidity",
+    "Support tranche CMOs",
+    "Stripped mortgage-backed securities",
+    "Non-agency MBS backed by commercial loans (other than multifamily)"
+  ],
+  "unmapped_clauses": [
+    "At least monthly, a Federal credit union must prepare a written report setting forth, for each security held, the fair value and dollar change since the prior month-end, with summary information for the entire portfolio.",
+    "At least quarterly... written report setting forth the sum of the fair values of all fixed and variable rate securities held that have... Embedded options; Remaining maturities greater than 3 years; or Coupon formulas that are related to more than one index or are inversely related to, or multiples of, an index.",
+    "Where the amount calculated... is greater than a Federal credit union's net worth, the report... must provide a reasonable and supportable estimate of the potential impact... of an immediate and sustained parallel shift in market interest rates of plus and minus 300 basis points."
+  ],
+  "policy_file_hash": "b1acd2987d77c78113882f7a8a07f26fa1e3d2950bccd54ffef20084c3f300ea"
+}

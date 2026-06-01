@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/pstiehl/ALM-First-Policies/schema/policy.schema.json",
+  "title": "ALM First Client Investment Policy",
+  "description": "Canonical shape for one client's extracted investment policy. Derived from the CSP preferred-language doc.",
+  "type": "object",
+  "required": ["client", "policy_file", "extracted_at", "asset_classes"],
+  "properties": {
+    "client": {"type": "string", "description": "Client display name as it appears in S:\\Clients\\<ClientName>"},
+    "policy_file": {"type": "string", "description": "Original filename of the source policy doc"},
+    "policy_file_hash": {"type": "string", "description": "sha256 of the source file at extraction time"},
+    "policy_date": {"type": ["string", "null"], "description": "Effective date of the policy if stated in the doc (ISO 8601)"},
+    "policy_year_folder": {"type": ["string", "null"], "description": "Year folder under policies/ this came from"},
+    "extracted_at": {"type": "string", "format": "date-time"},
+    "extractor_version": {"type": "string"},
+    "extraction_confidence": {"type": "number", "minimum": 0, "maximum": 1, "description": "Self-reported model confidence the policy was mapped cleanly"},
+    "asset_classes": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/asset_class"}
+    },
+    "portfolio_level_limits": {
+      "type": "object",
+      "description": "Limits that apply across the whole portfolio rather than a single asset class",
+      "properties": {
+        "max_effective_duration_years": {"type": ["number", "null"]},
+        "max_price_depreciation_pct_at_plus300bps": {"type": ["number", "null"]},
+        "min_liquidity_pct_of_assets": {"type": ["number", "null"]},
+        "concentration_notes": {"type": "string"}
+      }
+    },
+    "classification_rules": {
+      "type": "object",
+      "description": "HTM vs AFS vs Trading defaults the policy states",
+      "properties": {
+        "default_classification": {"type": "string", "enum": ["HTM", "AFS", "Trading", "Unspecified"]},
+        "trading_account_permitted": {"type": "boolean"},
+        "htm_permitted": {"type": "boolean"}
+      }
+    },
+    "approved_brokers": {"type": "array", "items": {"type": "string"}},
+    "prohibited_practices": {"type": "array", "items": {"type": "string"}, "description": "e.g. naked shorting, derivatives speculation"},
+    "unmapped_clauses": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Verbatim clauses the extractor could not confidently map to the canonical schema. Always reviewed by a human before publish."
+    }
+  },
+  "$defs": {
+    "asset_class": {
+      "type": "object",
+      "required": ["category", "permitted"],
+      "properties": {
+        "category": {
+          "type": "string",
+          "description": "Canonical asset class name. See enum below for the master list; the extractor may add subtypes."
+        },
+        "subcategory": {"type": ["string", "null"], "description": "e.g. 'Agency Bullet', 'Agency Callable', 'Agency CMO PAC'"},
+        "permitted": {"type": "boolean"},
+        "max_maturity_years": {"type": ["number", "null"]},
+        "max_weighted_average_life_years": {"type": ["number", "null"]},
+        "max_portfolio_pct": {"type": ["number", "null"], "description": "Cap as % of total investment portfolio"},
+        "max_net_worth_pct": {"type": ["number", "null"], "description": "Cap as % of institutional net worth"},
+        "single_issuer_pct": {"type": ["number", "null"], "description": "Cap on a single issuer, % of net worth"},
+        "single_security_limit": {
+          "type": ["string", "null"],
+          "description": "Either a percentage ('10% of Net Worth') or a dollar amount ('$250,000')"
+        },
+        "min_credit_rating": {"type": ["string", "null"], "description": "Standardized to S&P scale, e.g. 'AA-', 'A', 'BBB+'"},
+        "min_call_protection_years": {"type": ["number", "null"]},
+        "structures_permitted": {"type": "array", "items": {"type": "string"}},
+        "structures_prohibited": {"type": "array", "items": {"type": "string"}},
+        "verbatim_source": {"type": "string", "description": "Original clause(s) from the policy doc that produced these fields. For human audit."}
+      }
+    }
+  },
+  "x-canonical-categories": [
+    "US Treasury",
+    "Agency Debt",
+    "Agency MBS Passthrough",
+    "Agency CMO",
+    "Agency CMBS",
+    "Agency HECM",
+    "Small Business Administration (SBA)",
+    "Municipal Bonds",
+    "Corporate Bonds",
+    "Bank CDs",
+    "Federal Funds / Overnight Deposits",
+    "Money Market Funds",
+    "Mutual Funds",
+    "Asset-Backed Securities (Non-Agency)",
+    "Private-Label MBS",
+    "Equities",
+    "Derivatives / Hedging Instruments",
+    "Other"
+  ]
+}

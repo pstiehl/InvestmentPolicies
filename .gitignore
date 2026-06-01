@@ -1,0 +1,22 @@
+# Raw policy docs never leave Phil's laptop
+data/inbox/
+data/raw/
+*.docx
+*.xlsx
+!samples/*.docx
+!samples/*.xlsx
+
+# Build artifacts
+site/dist/
+__pycache__/
+*.pyc
+.venv/
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Audit / scratch
+data/llm_audit.jsonl
+data/scratch/

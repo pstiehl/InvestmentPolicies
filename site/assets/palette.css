@@ -1,0 +1,36 @@
+/* ALM First brand palette (from ALM_Color_Palette.pdf) */
+:root {
+  --peacock:    #06314c;
+  --chartreuse: #b0bc23;
+  --moss:       #63802b;
+  --ocean:      #006F98;
+  --teal:       #02929F;
+  --turquoise:  #67C8C6;
+
+  --apricot:    #d59600;
+  --cerulean:   #0a95b3;
+  --emerald:    #0d6440;
+  --grape:      #673dac;
+  --raspberry:  #b52d6a;
+
+  --grey-05:    #0c0d0a;
+  --grey-20:    #303329;
+  --grey-30:    #484d3f;
+  --grey-45:    #6d7363;
+  --grey-65:    #a1a697;
+  --grey-85:    #d6d9d1;
+  --grey-90:    #e4e6e0;
+  --grey-95:    #f1f2ef;
+  --grey-97:    #f7f7f5;
+
+  --bg:         var(--grey-97);
+  --bg-card:    #ffffff;
+  --fg:         var(--grey-05);
+  --fg-muted:   var(--grey-45);
+  --brand:      var(--peacock);
+  --accent:     var(--chartreuse);
+  --ok:         var(--emerald);
+  --warn:       var(--apricot);
+  --bad:        var(--raspberry);
+  --border:     var(--grey-85);
+}
