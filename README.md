@@ -101,7 +101,7 @@ See [`scraper/INSTALL_WINDOWS.md`](scraper/INSTALL_WINDOWS.md).
 ## Local dev (extractor + site)
 
 ```bash
-pip install --user anthropic python-docx openpyxl jinja2 jsonschema
+pip install anthropic python-docx openpyxl jinja2 jsonschema
 export ANTHROPIC_API_KEY=...
 python extractor/extract_policy.py samples/CSP_preferred_language.docx \
     --client "CSP Sample" --out data/extracted/csp_sample.json

@@ -27,8 +27,13 @@ cd InvestmentPolicies
 ## 2. Install Python deps
 
 ```powershell
-py -m pip install --user anthropic python-docx openpyxl jsonschema
+py -m pip install anthropic python-docx openpyxl jsonschema
 ```
+
+> If you previously ran with `--user` and got `ModuleNotFoundError: No module
+> named 'docx'`, that's the Microsoft Store Python quirk where `--user`
+> installs land in a path the `py` launcher can't see. Drop `--user` (the
+> command above) and re-run.
 
 ## 3. Configure the scraper
 
