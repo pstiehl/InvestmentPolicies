@@ -109,6 +109,14 @@ def run(cmd, **kw):
 
 
 def main():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--max-clients", type=int, default=int(os.environ.get("ALMP_MAX_CLIENTS", "75")),
+                    help="Refuse to extract more than this many clients in one run (safety belt against runaway loops).")
+    ap.add_argument("--only-client", default=None,
+                    help="Limit to a single client folder name. Useful for testing one policy.")
+    args = ap.parse_args()
+
     script_dir = Path(__file__).resolve().parent
     env = load_env(script_dir)
 
@@ -131,12 +139,15 @@ def main():
 
     changed_clients = []
     seen_clients = set()
+    extracted_this_run = 0
 
     for client_dir in sorted(clients_root.iterdir()):
         if not client_dir.is_dir():
             continue
         client_name = client_dir.name
         seen_clients.add(client_name)
+        if args.only_client and client_name != args.only_client:
+            continue
 
         policies_dir = client_dir / "policies"
         if not policies_dir.exists():
@@ -169,11 +180,17 @@ def main():
             }
             continue
 
+        # Safety belt: refuse to exceed max-clients in one run
+        if extracted_this_run >= args.max_clients:
+            print(f"[stop] Hit --max-clients={args.max_clients} cap. Remaining clients will run next invocation.")
+            break
+
         # Run extractor
         slug = slugify(client_name)
         out_json = extracted_dir / f"{slug}.json"
         print(f"[extract] {client_name}: {policy_file.name}")
         try:
+            extracted_this_run += 1
             run([
                 sys.executable,
                 str(repo_root / "extractor" / "extract_policy.py"),
